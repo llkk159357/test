@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.2/theme-chalk/index.css" rel="stylesheet">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #app {
+            width: 100%;
+            padding-top: 10px;
+            box-sizing: border-box;
+        }
+
+        .content_left {
+            width: 20%;
+            text-align: center;
+            float: left;
+
+        }
+
+        img {
+            width: 32%;
+            margin-right: 10px;
+        }
+
+        .content_right {
+            box-sizing: border-box;
+            padding: 0 5px;
+            width: 100%;
+
+        }
+
+        .list {
+            display: flex;
+            ;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: flex-end;
+            box-sizing: border-box;
+        }
+
+        .list_inner {
+            display: flex;
+        }
+
+        .cost_price {
+            text-decoration: line-through;
+            color: grey;
+        }
+
+        .price {
+            color: red;
+        }
+
+        .item {
+            padding: 10px 0;
+            background: grey;
+        }
+
+        .outer {
+            width: 80%;
+            overflow: scroll;
+            box-sizing: border-box;
+            padding: 0 8px;
+            float: right;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .cart {
+            width: 70%;
+
+            position: fixed;
+            bottom: 14%;
+
+            left: 15%;
+
+        }
+
+        .check {
+            background: orange;
+            width: 35%;
+            box-sizing: border-box;
+            border-top-right-radius: 30px;
+            border-bottom-right-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart_inner {
+            position: absolute;
+            display: flex;
+            width: 100%;
+
+        }
+
+        .cart_left {
+            width: 65%;
+            background: black;
+            padding: 15px 0;
+            ;
+            border-top-left-radius: 30px;
+            border-bottom-left-radius: 30px;
+        }
+
+        .cart_price {
+            color: white;
+        }
+
+        .num {
+            color: white;
+            margin-left: 10px;
+            margin-right: 15px;
+        }
+
+        .detailList {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+        }
+
+        .detail {
+            background: #f5f5f5;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .slide-enter {
+            transform: translateY(100%);
+        }
+
+        .slide-leave-active,
+        .slide-enter-active {
+            transition: transform 0.2s linear;
+        }
+
+        .slide-leave-to {
+            transform: translateY(100%);
+        }
+
+        .bg {
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="content_left">
+            <div>
+
+                <div v-for="item in shopData" :class="{bg:item.click}" class="item" v-on:click="showItem(item)">
+                    {{item.mc_name}}
+                </div>
+            </div>
+        </div>
+        <div class="outer" :style="{height:height+'px'}">
+            <div class="content_right">
+                <div class="part" id="index0">
+                    <div>
+                        {{resList.partName}}
+                    </div>
+                    <div v-for="item in resList.result" class="list">
+
+                        <div class="list_inner">
+                            <img :src="'https://tq-school.oss-cn-beijing.aliyuncs.com'+item.ms_pic" alt="">
+                            <div>
+                                <div>
+                                    {{item.ms_name}}
+                                </div>
+                                <div>
+                                    前面还有{{item.lineup_num}}份
+                                </div>
+                                <div>
+                                    <span class="price">{{item.discount}}</span>
+                                    <span>￥</span>
+                                    <span class="price">{{item.ms_price}}</span>
+                                    <span>/份</span>
+                                </div>
+                                <div class="cost_price">
+                                    ￥{{item.ms_cost_price}}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-on:click="add(item)" style="color: orange;font-size: 22px;" class="el-icon-circle-plus">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="part" id="index1">
+                    <div>
+                        {{discount.partName}}
+                    </div>
+                    <div v-for="item in discount.result" class="list">
+
+                        <div class="list_inner">
+                            <img :src="'https://tq-school.oss-cn-beijing.aliyuncs.com'+item.ms_pic" alt="">
+                            <div>
+                                <div>
+                                    {{item.ms_name}}
+                                </div>
+                                <div>
+                                    前面还有{{item.lineup_num}}份
+                                </div>
+                                <div>
+                                    <span class="price">{{item.discount}}</span>
+                                    <span>￥</span>
+                                    <span class="price">{{item.ms_price}}</span>
+                                    <span>/份</span>
+                                </div>
+                                <div class="cost_price">
+                                    ￥{{item.ms_cost_price}}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-on:click="add(item)" style="color: orange;font-size: 22px;" class="el-icon-circle-plus">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div v-for="(list,index) in newlists" :id="'index'+(index+2)">
+                    {{list.name}}
+                    <div v-for="item in list.result" class="list">
+
+                        <div class="list_inner">
+                            <img :src="'https://tq-school.oss-cn-beijing.aliyuncs.com'+item.ms_pic" alt="">
+                            <div>
+                                <div>
+                                    {{item.ms_name}}
+                                </div>
+                                <div>
+                                    前面还有{{item.lineup_num}}份
+                                </div>
+                                <div>
+                                    <span class="price">{{item.discount}}</span>
+                                    <span>￥</span>
+                                    <span class="price">{{item.ms_price}}</span>
+                                    <span>/份</span>
+                                </div>
+                                <div class="cost_price">
+                                    ￥{{item.ms_cost_price}}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-on:click="add(item)" style="color: orange;font-size: 22px;" class="el-icon-circle-plus">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="clear">
+
+        </div>
+        <div class="cart">
+            <div class="cart_inner">
+                <div class="cart_left" v-on:click="showDetail">
+                    <span class="num">{{num}}</span>
+                    <span class="cart_price">￥{{price}}</span>
+
+                </div>
+                <div class="check">
+                    去结算
+                </div>
+            </div>
+
+        </div>
+        <transition name="slide">
+            <div class="detail" v-if="seen">
+                <div v-on:click="back">
+                    不显示
+                </div>
+                <div v-for="item in  list" class="detailList">
+            
+                    <div>{{item.ms_name}}
+
+                        <span>{{item.num}}</span>
+                    </div>
+                    <div>
+                        <span class="el-icon-remove-outline" v-on:click="minus(item)"></span>
+                        <span class="el-icon-circle-plus-outline" v-on:click="add(item)"></span>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.5.18/vue.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.js"></script>
+
+    <script>
+
+  
+
+
+
+
+        new Vue({
+            el: '#app',
+            data: {
+                resList: "",
+                shopData: '',
+                discount: '',
+                num: 0,
+                price: 0,
+                seen: false,
+                list: new Set(),
+                newlists: [],
+                height: "",
+                disArr: '',
+                clicked:false,
+                j:0,
+                arr:[]
+            },
+            computed:{
+             cartlist:function (list) {
+              return [...list]
+             }
+              },
+            created: function () {
+                var that = this
+                var url = 'https://api.ixiaoba.cn/Index/shopData'
+                axios({
+                    url: url,
+                    method: 'post',
+                    data: {
+                        sid: 1,
+                        token: '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA=='
+                    },
+                    transformRequest: [function (data) {
+                        // 对 data 进行任意转换处理
+                        var formdata = new FormData()
+                        formdata.append('sid', 1)
+                        formdata.append('token', '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA==')
+                        return formdata;
+                    }],
+
+                }).then(res => {
+                    var arr = [{ mc_name: '热卖', click: true }, { mc_name: '折扣', click: false }]
+                    res.data.result.class.map(function (item) {
+                        item.click = false
+                    })
+                    this.shopData = arr.concat(res.data.result.class)
+                    //
+                    var outer = document.getElementsByClassName('outer')[0]
+                    outer.dragstart=function(){
+                        that.clicked=false
+                    }
+                    outer.onmousewheel=function(){
+                        that.clicked=false
+                    }
+                    outer.ontouchstart=function(){
+                        that.clicked=false
+                    }
+                    outer.onscroll = function(){
+                        if(that.clicked){
+                        
+                            return 
+                       
+                        }
+                          if(!that.clicked){
+                            that.scroll(outer)
+                          }
+                    }
+                })
+
+                axios({
+                    url: 'https://api.ixiaoba.cn/index/setmealList',
+                    method: 'post',
+                    data: {
+                        sid: 1,
+                        token: '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA=='
+                    },
+                    transformRequest: [function (data) {
+                        // 对 data 进行任意转换处理
+                        var formdata = new FormData()
+                        formdata.append('sid', 1)
+                        formdata.append('token', '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA==')
+                        return formdata;
+                    }],
+
+                }).then(res => {
+                    res.data.partName = "热卖"
+                    this.resList = res.data
+                    console.log(this.resList)
+
+                    axios({
+                        url: 'https://api.ixiaoba.cn/index/discountList',
+                        method: 'post',
+                        data: {
+                            sid: 1,
+                            token: '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA=='
+                        },
+                        transformRequest: [function (data) {
+                            // 对 data 进行任意转换处理
+                            var formdata = new FormData()
+                            formdata.append('sid', 1)
+                            formdata.append('token', '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA==')
+                            return formdata;
+                        }],
+
+                    }).then(res => {
+                        res.data.partName = '折扣'
+                        this.discount = res.data
+                        console.log(this.discount)
+
+                        var arr = this.shopData.slice(2)
+                        var i = 0
+                        console.log('okok')
+
+                        var arr = this.shopData.slice(2)
+                        console.log(arr)
+                
+                        this.fetch(arr, i)
+                    })
+                })
+            },
+            mounted: function () {
+
+                this.height = document.documentElement.clientHeight
+                var arr = new Set()
+            },
+            methods: {
+                scroll: function (outer) {
+                    var that = this
+                   var arr=[]
+                    var j=0
+                                 
+                    //
+                    j++
+                    if (j <= 1) {
+                  
+                        for (var i = 0; i < that.shopData.length; i++) {
+
+                            arr.push({
+                                name: that.shopData[i].mc_name,
+                                distance: document.getElementById('index' + i).offsetTop
+                            })
+                        }
+                    }
+                    //
+
+                    for (var i = 0; i <arr.length; i++) {
+                     
+                        if (arr[i].distance - outer.scrollTop - document.documentElement.clientHeight < 5) {
+                            for (k = 0; k < that.shopData.length; k++) {
+                                that.shopData[k].click = false
+                            }
+                            that.shopData[i].click = true
+                          
+                        }
+                    }
+                },
+                back: function () {
+                    this.seen = false
+                },
+                minus: function (item) {
+                    item.num--
+                    if (item.num < 1) {
+                        this.list.delete(item)
+
+                    }
+                    this.num--
+                    this.price -= Number(item.ms_price)
+                    this.price.toFixed(2)
+                    if (this.num < 1) {
+                        this.seen = false
+                    }
+                },
+                showDetail: function () {
+                    if (!this.list) {
+                        this.seen = false
+                        return
+                    }
+                    this.seen = !this.seen
+
+                },
+                add: function (item) {
+
+                    if (!item.num) {
+                        Vue.set(item, 'num', 1)
+                        this.num++
+                        this.price += Number(item.ms_price)
+                    } else {
+                        item.num++
+                        this.num++
+                        this.price += Number(item.ms_price)
+
+                    }
+                    //
+                    this.list.add(item)
+                     
+              
+                    this.price.toFixed(2)
+
+                    console.log(this.list)
+
+                },
+                showRes: function () {},
+                fetch: function (arr, i) {
+
+                    axios({
+                        url: 'https://api.ixiaoba.cn/index/goodsList',
+                        method: 'post',
+                        data: {
+                            sid: 1,
+                            token: '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA==',
+                            mc_id: arr[i].mc_id,
+                            page: 1,
+                            size: 100,
+                        },
+                        transformRequest: [function (data) {
+                            // 对 data 进行任意转换处理
+                            var formdata = new FormData()
+                            /*
+                            formdata.append('sid', 1)
+                            formdata.append('token', '7vsRsNzuIqEEfZnviLl4vhxIw8d4upBgROcpPLRg7oie93YEixy3uA==')
+                            formdata.append('mc_id', )
+                            formdata.append('page', 1)
+                            formdata.append('size', 100)
+                            */
+                            for (var i in data) {
+                                formdata.append(i, data[i])
+                            }
+
+                            return formdata;
+                        }],
+
+                    }).then(res => {
+
+                        this.newlists.push({
+                            name: arr[i].mc_name,
+                            result: res.data.result
+                        })
+                        i++
+                        if (i < 13) {
+                            this.fetch(arr, i)
+                        }
+                    })
+
+                },
+                showItem: function (item) {
+                    var outer = document.getElementsByClassName('outer')[0]
+                   
+                   this.clicked=true
+                    var outer = document.getElementsByClassName('outer')[0]
+              
+
+                    for (var i = 0; i < this.shopData.length; i++) {
+                        this.shopData[i].click = false
+                    }
+                    item.click = true
+
+                    var arr = []
+
+                    var j = 0
+                    j++
+
+                    if (j <= 1) {
+                        for (var k = 0; k < this.shopData.length; k++) {
+                            arr.push({
+                                name: this.shopData[k].mc_name,
+                                distance: document.getElementById('index' + k).offsetTop
+                            })
+                        }
+                    }
+                    for (var m = 0; m < arr.length; m++) {
+                        if (this.shopData[m].click == true) {
+                            if (this.shopData[m].mc_name == arr[m].name) {
+                                outer.scrollTop = arr[m].distance - 10
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+    </script>
+
+</body>
+
+</html>
